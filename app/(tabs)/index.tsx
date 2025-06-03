@@ -2,11 +2,12 @@ import { View, Image, ScrollView, ActivityIndicator, Text, FlatList } from 'reac
 import React from 'react'
 import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
-import Searchbar from '../components/Searchbar'
+
 import { useRouter } from 'expo-router'
 import useFetch from '@/services/useFetch'
 import { fetchMovies } from '@/services/api'
 import MovieCard from '../components/MovieCard'
+import Searchbar from '../components/Searchbar'
 
 
 export default function Index () {
@@ -41,29 +42,30 @@ export default function Index () {
         ) : (
           <View className="flex-1 mt-5">
             <Searchbar
-              onPress={() => router.push("/search")}
-              placeholder="Search"
+              onPress={() => {
+                router.push("/search");
+              }}
+              placeholder="Search for a movie"
             />
+
             <Text className="text-white text-2xl font-semibold mt-5 mb-3">
               Trending Movies
             </Text>
 
             <FlatList
               data={movies}
-              renderItem={({item}) => ( 
-                <MovieCard {...item} />
-            )}
-            keyExtractor={(item) => item.id}
-            numColumns={3}
-            columnWrapperStyle={{
-              justifyContent: "flex-start",
-              gap:20,
-              paddingRight:5,
-              marginBottom:10
-            }}
-            className='mt-2 pb-32'
-            scrollEnabled={false}
-              />
+              renderItem={({ item }) => <MovieCard {...item} />}
+              keyExtractor={(item) => item.id}
+              numColumns={3}
+              columnWrapperStyle={{
+                justifyContent: "flex-start",
+                gap: 20,
+                paddingRight: 5,
+                marginBottom: 10,
+              }}
+              className="mt-2 pb-32"
+              scrollEnabled={false}
+            />
           </View>
         )}
       </ScrollView>

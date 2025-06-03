@@ -1,105 +1,122 @@
-import { icons } from "@/constants/icons";
+import { useState, useEffect } from "react";
+import { View, Text, ActivityIndicator, FlatList, Image } from "react-native";
+
 import { images } from "@/constants/images";
-import { fetchMovies } from "@/services/api";
+import { icons } from "@/constants/icons";
+
 import useFetch from "@/services/useFetch";
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
+import { fetchMovies } from "@/services/api";
+import { updateSearchCount } from "@/services/firebaseMovies";
 import MovieCard from "../components/MovieCard";
-import Searchbar from "../components/Searchbar";
+import SearchBar from "../components/Searchbar";
+
+
+
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const {
-    data: movies,
-    loading: loadingMovies,
-    error: errorMovies,
-    refetch: refetchMovies,
-    reset: resetMovies,
-  } = useFetch(() => fetchMovies({ query: "searchQuery" }), true);
+    data: movies = [],
+    loading,
+    error,
+    refetch: loadMovies,
+    reset,
+  } = useFetch(() => fetchMovies({ query: searchQuery }), false);
 
-useEffect(() => {
-  const handleTimedSearch =  setTimeout(async () => {
-    if (searchQuery.trim()) {
-      await refetchMovies();
-    } else {
-      resetMovies();
-    }
-  }, 500);
-
-  return () => {
-    clearTimeout(handleTimedSearch);
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
   };
 
-}
-, [searchQuery, refetchMovies, resetMovies]);
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(async () => {
+      if (searchQuery.trim()) {
+        await loadMovies();
+
+        // Call updateSearchCount only if there are results
+        if (movies?.length! > 0 && movies?.[0]) {
+          await updateSearchCount(searchQuery, movies[0]);
+        }
+      } else {
+        reset();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   return (
     <View className="flex-1 bg-primary">
       <Image
         source={images.bg}
-        className=" flex-1 w-full absolute z-0"
+        className="flex-1 absolute w-full z-0"
         resizeMode="cover"
       />
+
       <FlatList
-        data={movies}
-        renderItem={({ item }) => <MovieCard {...item} />}
-        keyExtractor={(item) => item.id.toString()}
         className="px-5"
+        data={movies as Movie[]}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => <MovieCard {...item} />}
         numColumns={3}
         columnWrapperStyle={{
-          justifyContent: "center",
-          gap: 20,
-          marginVertical: 20,
+          justifyContent: "flex-start",
+          gap: 16,
+          marginVertical: 16,
         }}
         contentContainerStyle={{ paddingBottom: 100 }}
         ListHeaderComponent={
           <>
-            <View className=" w-full mt-20 flex-row justify-center items-center">
-              <Image
-                source={icons.logo}
-                className="w-12 h-10 mb-5"
-                resizeMode="contain"
-              />
-            </View>
-            <View className="my-5">
-              <Searchbar placeholder="Search" value={searchQuery}  onChangeText={(text : string) => setSearchQuery(text)} />
+            <View className="w-full flex-row justify-center mt-20 items-center">
+              <Image source={icons.logo} className="w-12 h-10" />
             </View>
 
-            {loadingMovies && (
+            <View className="my-5">
+              <SearchBar
+                placeholder="Search for a movie"
+                value={searchQuery}
+                onChangeText={handleSearch}
+              />
+            </View>
+
+            {loading && (
               <ActivityIndicator
                 size="large"
-                color="#AB8BFF"
-                className="mt-12 self-center"
+                color="#0000ff"
+                className="my-3"
               />
             )}
 
-            {errorMovies && (
-              <Text className="text-red-500 text-center mt-12 self-center">
-                Error : {errorMovies.message || "Something went wrong"}
+            {error && (
+              <Text className="text-red-500 px-5 my-3">
+                Error: {error.message}
               </Text>
             )}
 
-            {!loadingMovies &&
-              !errorMovies &&
+            {!loading &&
+              !error &&
               searchQuery.trim() &&
-              movies?.length > 0 && (
-                <Text className="text-white text-xl font-semibold mt-5 mb-3">
+              movies?.length! > 0 && (
+                <Text className="text-xl text-white font-bold">
                   Search Results for{" "}
-                  <Text className="text-darkAccent">{searchQuery}</Text>
+                  <Text className="text-accent">{searchQuery}</Text>
                 </Text>
               )}
           </>
         }
-
         ListEmptyComponent={
-          !loadingMovies && !errorMovies && searchQuery.trim() ? (
-            <Text className="text-white text-center mt-12 self-center">
-             {searchQuery.trim() ? `No results found for "${searchQuery}"` : "Search for a movie"}
-            </Text>
+          !loading && !error ? (
+            <View className="mt-10 px-5">
+              <Text className="text-center text-gray-500">
+                {searchQuery.trim()
+                  ? "No movies found"
+                  : "Start typing to search for movies"}
+              </Text>
+            </View>
           ) : null
         }
-      ></FlatList>
+      />
     </View>
   );
 };
