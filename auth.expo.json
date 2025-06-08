@@ -1,0 +1,13 @@
+{
+    "expo": {
+      "name": "your-app",
+      
+      "scheme": "yourapp",
+      "platforms": ["ios", "android", "web"],
+      "extra": {
+        "googleAuth": {
+          "expoClientId": "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
+        }
+      }
+    }
+  }

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "299820295420",
+    "project_id": "wtw-app-835e8",
+    "storage_bucket": "wtw-app-835e8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:299820295420:android:64181fcf8c559947bf2379",
+        "android_client_info": {
+          "package_name": "com.wtw.whattowatch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "299820295420-jufs68k1t37i5t00gi1kuql69u1b5s1g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wtw.whattowatch",
+            "certificate_hash": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+          }
+        },
+        {
+          "client_id": "299820295420-d44ok0k8d9ml96louicaskpeg4eovjji.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1i-sQxCvhxXZcwn7kKzKoQPnvKq-nhPE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "299820295420-d44ok0k8d9ml96louicaskpeg4eovjji.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
