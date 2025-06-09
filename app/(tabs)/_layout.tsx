@@ -1,29 +1,46 @@
 import { View, Text, ImageBackground, Image, ImageSourcePropType } from 'react-native'
-import React from 'react'
+import React, { createContext, useEffect, useState } from 'react'
 import { Tabs } from 'expo-router'
 import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { User } from 'firebase/auth';
 
+export const AuthContext = createContext({
+  user: {} as User,
+  setUser: () => {},
+});
 
 const TabBarIcon = ({icon, name, focused} : {icon: ImageSourcePropType, name: string, focused: boolean}) => {
-  return focused ? (
-    <ImageBackground
-      source={images.highlight}
-      className="flex flex-row w-full flex-1 min-w-[76px] min-h-24 mt-4 justify-center items-center rounded-full overflow-hidden" 
-    >
-      <Image source={icon} tintColor="blue" className="size-5" />
-      <Text className="font-semibold text-secondary text-base ml-2 mr-2">
-        {name}
-      </Text>
-    </ImageBackground>
-  ) : (
-    <>
-    <View className=' size-full justify-center items-center mt-4 rounded-full'>
-      <Image source={icon} className="size-5" tintColor="gray" />
+  const [user, setUser] = useState<import("firebase/auth").User | null>(null);
 
-    </View>
-    </>
-  );
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return unsubscribe;
+  }, []);
+
+  if (focused) {
+    return (
+      <ImageBackground
+        source={images.highlight}
+        className="flex flex-row w-full flex-1 min-w-[76px] min-h-24 mt-4 justify-center items-center rounded-full overflow-hidden" 
+      >
+        <Image source={icon} tintColor="blue" className="size-5" />
+        <Text className="font-semibold text-secondary text-base ml-2 mr-2">
+          {name}
+        </Text>
+      </ImageBackground>
+    );
+  } else {
+    return (
+      <View className=' size-full justify-center items-center mt-4 rounded-full'>
+        <Image source={icon} className="size-5" tintColor="gray" />
+      </View>
+    );
+  }
 }
 const _layout = () => {
   return (

@@ -2,7 +2,7 @@ import { icons } from "@/constants/icons";
 import { auth } from "@/lib/firebase";
 import { emailSignIn, emailSignUp, useGoogleSignIn } from "@/services/signin";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -11,20 +11,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { AuthContext } from "./_layout";
 
 export default function Profile() {
-  const [user, setUser] = useState<import("firebase/auth").User | null>(null);
+
   const { promptAsync, request } = useGoogleSignIn();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return unsubscribe;
-  }, []);
+  
+  const { user, setUser } = useContext(AuthContext);
+
 
   const handleEmailSignIn = async () => {
     setLoading(true);
@@ -48,7 +46,7 @@ export default function Profile() {
 
   const handleSignOut = async () => {
     await signOut(auth);
-    setUser(null);
+    setUser();
   };
 
   if (!user) {
