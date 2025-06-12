@@ -1,26 +1,29 @@
 import { View, Text, ImageBackground, Image, ImageSourcePropType } from 'react-native'
-import React, { createContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import { Tabs } from 'expo-router'
 import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { User } from 'firebase/auth';
 
-export const AuthContext = createContext({
-  user: {} as User,
+type AuthContextType = {
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+};
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
   setUser: () => {},
 });
 
 const TabBarIcon = ({icon, name, focused} : {icon: ImageSourcePropType, name: string, focused: boolean}) => {
-  const [user, setUser] = useState<import("firebase/auth").User | null>(null);
+  const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
     return unsubscribe;
-  }, []);
+  }, [setUser]);
 
   if (focused) {
     return (
@@ -42,8 +45,10 @@ const TabBarIcon = ({icon, name, focused} : {icon: ImageSourcePropType, name: st
     );
   }
 }
-const _layout = () => {
+const Layout = () => {
+  const [user, setUser] = useState<User | null>(null);
   return (
+  <AuthContext.Provider value={{ user, setUser }}>
     <Tabs
     screenOptions={{
       headerShown: false,
@@ -113,7 +118,8 @@ const _layout = () => {
         }}
       />
     </Tabs>
+  </AuthContext.Provider>
   );
 }
 
-export default _layout
+export default Layout

@@ -46,7 +46,7 @@ export default function Profile() {
 
   const handleSignOut = async () => {
     await signOut(auth);
-    setUser();
+    setUser(null);
   };
 
   if (!user) {

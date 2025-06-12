@@ -1,13 +1,13 @@
 import * as Google from "expo-auth-session/providers/google";
 import {
-  auth,
   signInWithCredential,
   GoogleAuthProvider,
-    createUserWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   UserCredential,
   signOut,
 } from "firebase/auth";
+import { auth } from "../lib/firebase"; // Update the path as needed
 
 
 
