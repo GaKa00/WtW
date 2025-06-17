@@ -11,13 +11,36 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { icons } from "@/constants/icons";
 import { fetchMovieDetails } from "@/services/api";
+import { useSavedMovies } from "@/services/savedMovies";
+import { useContext } from "react";
+
 import useFetch from "../../services/useFetch";
+import { AuthContext } from "../_layout";
 
 interface MovieInfoProps {
   label: string;
   value?: string | number | null;
 }
 
+
+function movieDetailsToMovie(details: MovieDetails): Movie {
+  return {
+    id: details.id,
+    title: details.title ?? "",
+    adult: details.adult ?? false,
+    backdrop_path: details.backdrop_path ?? "",
+    genre_ids: details.genres ? details.genres.map((g) => g.id) : [],
+    original_language: details.original_language ?? "",
+    original_title: details.original_title ?? "",
+    overview: details.overview ?? "",
+    popularity: details.popularity ?? 0,
+    poster_path: details.poster_path ?? "",
+    release_date: details.release_date ?? "",
+    video: details.video ?? false,
+    vote_average: details.vote_average ?? 0,
+    vote_count: details.vote_count ?? 0,
+  };
+}
 const MovieInfo = ({ label, value }: MovieInfoProps) => (
   <View className="flex-col items-start justify-center mt-5">
     <Text className="text-white font-normal text-sm">{label}</Text>
@@ -30,6 +53,9 @@ const MovieInfo = ({ label, value }: MovieInfoProps) => (
 const Details = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { user } = useContext(AuthContext);
+  const { addAndSaveMovie } = useSavedMovies();
+  console.log("User:", user);
 
   const { data: movie, loading } = useFetch(() =>
     fetchMovieDetails(Number(id))
@@ -66,24 +92,25 @@ const Details = () => {
 
           <View className="flex-row items-center bg-dark-100 px-2 py-1 rounded-md gap-x-1 mt-2">
             <Image source={icons.star} className="size-4" />
-
             <Text className="text-white font-bold text-sm">
               {Math.round(movie?.vote_average ?? 0)}/10
             </Text>
             <Text className="text-white text-sm">
               ({movie?.vote_count} votes)
             </Text>
-
-            <TouchableOpacity
-              className="ml-20 flex-row items-center px-4 py-2 rounded-full bg-accent border border-purple-300 shadow-lg shadow-purple-500"
-              activeOpacity={0.85}
-            >
-              <Text className="text-white font-bold text-base mr-1">Add to Saved</Text>
-              <Text className="text-white font-bold text-xl">+</Text>
-            </TouchableOpacity>
+            {user && movie && (
+              <TouchableOpacity
+                className="ml-auto flex-row items-center px-4 py-2 rounded-full bg-accent border border-purple-300 shadow-lg shadow-purple-500"
+                activeOpacity={0.85}
+                onPress={() => addAndSaveMovie(user.uid, movieDetailsToMovie(movie))}
+              >
+                <Text className="text-white font-bold text-base mr-1">
+                  Add to Saved
+                </Text>
+                <Text className="text-white font-bold text-xl">+</Text>
+              </TouchableOpacity>
+            )}
           </View>
-
-          <MovieInfo label="Overview" value={String(movie?.overview)} />
           <MovieInfo
             label="Genres"
             value={movie?.genres?.map((g) => g.name).join(" • ") || "N/A"}

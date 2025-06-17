@@ -7,8 +7,10 @@ import {
   addDoc,
   orderBy,
   limit,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 const COLLECTION_NAME = "trendingMovies";
 
@@ -67,3 +69,55 @@ export const getTrendingMovies = async (): Promise<
   }
 };
 
+
+
+export const addSavedMovie = async (
+  uid: string,
+  movie: Movie
+): Promise<void> => {
+  try {
+    const movieRef = doc(db, "users", uid, "watchlist", movie.id.toString());
+    await setDoc(movieRef, movie); 
+  } catch (error) {
+    console.error("Error adding saved movie:", error);
+    throw error;
+  }
+};
+
+
+export const removeSavedMovie = async (
+  uid: string,
+  movieId: number
+): Promise<void> => {
+  try {
+    const movieRef = doc(db, "users", uid, "watchlist", movieId.toString());
+    await deleteDoc(movieRef);
+  } catch (error) {
+    console.error("Error removing saved movie:", error);
+    throw error;
+  }
+};
+
+
+ export const fetchSavedMovies = async (uid: string): Promise<Movie[]> => {
+  const snapshot = await getDocs(collection(db, "users", uid, "watchlist"));
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: Number(doc.id),
+      title: data.title,
+      adult: data.adult,
+      backdrop_path: data.backdrop_path,
+      genre_ids: data.genre_ids,
+      original_language: data.original_language,
+      original_title: data.original_title,
+      overview: data.overview,
+      popularity: data.popularity,
+      poster_path: data.poster_path,
+      release_date: data.release_date,
+      video: data.video,
+      vote_average: data.vote_average,
+      vote_count: data.vote_count,
+    } as Movie;
+  });
+}

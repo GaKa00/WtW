@@ -7,17 +7,19 @@ import {
   UserCredential,
   signOut,
 } from "firebase/auth";
-import { auth } from "../lib/firebase"; // Update the path as needed
+import { auth } from "../lib/firebase"; 
+
 
 
 
 
 import { useEffect } from "react";
+import { createUserDocumentIfNotExists } from "./user";
 
 
 
 export function useGoogleSignIn() {
-  // Replace with your Web Client ID from Firebase Console
+
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
       "299820295420-d44ok0k8d9ml96louicaskpeg4eovjji.apps.googleusercontent.com",
@@ -28,8 +30,9 @@ export function useGoogleSignIn() {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
       signInWithCredential(auth, credential)
-        .then((userCredential) => {
+        .then(async (userCredential) => {
           console.log("User signed in:", userCredential.user);
+          await createUserDocumentIfNotExists(userCredential.user);
         })
         .catch((error) => {
           console.error(error);
@@ -44,15 +47,18 @@ export async function emailSignUp(
   email: string,
   password: string
 ): Promise<UserCredential> {
-  return await createUserWithEmailAndPassword(auth, email, password);
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
+  await createUserDocumentIfNotExists(cred.user);
+  return cred;
 }
-
 
 export async function emailSignIn(
   email: string,
   password: string
 ): Promise<UserCredential> {
-  return await signInWithEmailAndPassword(auth, email, password);
+  const cred = await signInWithEmailAndPassword(auth, email, password);
+  await createUserDocumentIfNotExists(cred.user); 
+  return cred;
 }
 
 

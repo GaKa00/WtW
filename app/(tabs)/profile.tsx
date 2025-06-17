@@ -1,8 +1,8 @@
 import { icons } from "@/constants/icons";
 import { auth } from "@/lib/firebase";
 import { emailSignIn, emailSignUp, useGoogleSignIn } from "@/services/signin";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import React, { useContext, useEffect, useState } from "react";
+import {signOut } from "firebase/auth";
+import React, { useContext,  useState } from "react";
 import {
   Alert,
   Image,
@@ -11,7 +11,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { AuthContext } from "./_layout";
+import { AuthContext } from "../_layout";
+
 
 export default function Profile() {
 
